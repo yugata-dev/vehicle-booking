@@ -1,58 +1,73 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Vehicle Booking
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Aplikasi pemesanan kendaraan untuk perusahaan tambang nikel. Setiap pemesanan memerlukan persetujuan dua tingkat sebelum kendaraan digunakan.
 
-## About Laravel
+## Teknologi
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Versi di bawah diambil dari lingkungan proyek dan berkas dependensinya.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- PHP 8.3.6 (CLI); `composer.json` mensyaratkan PHP `^8.3`.
+- Laravel 13.36.0 (`composer.lock`).
+- SQLite 3.45.1. Ini versi library SQLite sistem; verifikasi melalui PDO PHP tidak tersedia di lingkungan saat dokumentasi dibuat karena ekstensi `pdo_sqlite` belum aktif.
+- Tailwind CSS 3.4.19 (`package-lock.json`).
+- Chart.js 4.4.0 melalui CDN.
+- Maatwebsite Excel 4.0.4.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Instalasi
 
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+Pastikan PHP, Composer, Node.js, dan npm sudah tersedia. Langkah berikut menggunakan SQLite sesuai konfigurasi `.env.example`.
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+composer install
+cp .env.example .env
+php artisan key:generate
+touch database/database.sqlite
+php artisan migrate --seed
+npm install
+npm run build
+php artisan serve
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+> Buka alamat yang ditampilkan oleh `php artisan serve`. Bila menggunakan database selain SQLite, sesuaikan `.env` dan siapkan database sebelum menjalankan migrasi.
 
-## Contributing
+## Akun demo
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Seeder membuat akun berikut dengan kata sandi `password`. Login menggunakan **email**, bukan username.
 
-## Code of Conduct
+| Peran            | Username    | Email untuk login       | Kata sandi |
+| ---------------- | ----------- | ----------------------- | ---------- |
+| Admin            | `admin`     | `admin@company.com`     | `password` |
+| Approver level 1 | `approver1` | `approver1@company.com` | `password` |
+| Approver level 2 | `approver2` | `approver2@company.com` | `password` |
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+> Akun dan kata sandi tersebut hanya untuk data demo hasil seeder.
 
-## Security Vulnerabilities
+## Panduan pengguna
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+1. **Admin** masuk, mengelola kendaraan dan driver, lalu membuat pemesanan dengan memilih approver level 1 dan level 2.
+2. **Approver level 1** meninjau pemesanan dan menyetujui atau menolaknya.
+3. **Approver level 2** dapat memproses pemesanan setelah approver level 1 menyetujuinya.
+4. Penolakan di salah satu tingkat mengubah status pemesanan menjadi `rejected`.
+5. Admin melihat ringkasan dan grafik pada dashboard serta mengekspor laporan Excel berdasarkan rentang tanggal.
 
-## License
+## Aturan bisnis
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+- Jadwal kendaraan yang bertabrakan dengan pemesanan berstatus `pending` atau `approved` ditolak.
+- Approver level 2 tidak dapat memproses pemesanan sebelum persetujuan level 1 diberikan.
+- Aktivitas login, logout, pemesanan, persetujuan, penolakan, perubahan kendaraan/driver, dan ekspor dicatat di tabel `activity_logs`.
+
+## Diagram
+
+![Diagram ERD](docs/ERD.png)
+
+![Diagram Aktivitas](docs/Diagram_Aktivitas.png)
+
+## Menjalankan tes
+
+```bash
+php artisan test
+```
+
+## Catatan alat AI
+
+Pengembangan dibantu OpenAI Codex. Kode aplikasi telah ditinjau.

@@ -54,6 +54,18 @@ class BookingController extends Controller
             'end_date' => ['nullable', 'date', Rule::when($request->filled('start_date'), ['after_or_equal:start_date'])],
         ]);
 
+        ActivityLog::create([
+            'user_id' => $request->user()->id,
+            'action' => 'export',
+            'entity' => 'booking_export',
+            'entity_id' => null,
+            'description' => sprintf(
+                'Ekspor pemesanan untuk rentang tanggal %s sampai %s.',
+                $validated['start_date'] ?? 'tanpa batas awal',
+                $validated['end_date'] ?? 'tanpa batas akhir',
+            ),
+        ]);
+
         return Excel::download(
             new BookingsExport(
                 $request->user(),
