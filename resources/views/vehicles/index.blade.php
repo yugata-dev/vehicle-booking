@@ -29,9 +29,9 @@
                             <tr>
                                 <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-900">{{ $vehicle->plate_number }}</td>
                                 <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-900">{{ $vehicle->name }}</td>
-                                <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-600">{{ $vehicle->type }}</td>
-                                <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-600">{{ $vehicle->ownership }}</td>
-                                <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-600">{{ $vehicle->status }}</td>
+                                <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-600">{{ ucfirst($vehicle->type) }}</td>
+                                <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-600">{{ ucfirst($vehicle->ownership) }}</td>
+                                <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-600">{{ ucfirst($vehicle->status) }}</td>
                                 <td class="whitespace-nowrap px-6 py-4 text-right text-sm">
                                     <div class="flex justify-end gap-4">
                                         <a href="{{ route('vehicles.edit', $vehicle) }}" class="font-medium text-indigo-600 hover:text-indigo-800">Edit</a>

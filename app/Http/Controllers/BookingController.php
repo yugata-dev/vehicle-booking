@@ -11,6 +11,7 @@ use App\Models\Vehicle;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -79,7 +80,11 @@ class BookingController extends Controller
     public function create(): View
     {
         return view('bookings.create', [
-            'vehicles' => Vehicle::query()->orderBy('plate_number')->get(),
+            'vehicles' => Vehicle::query()
+                ->where('status', '!=', 'service')
+                ->orderBy('plate_number')
+                ->get(),
+            'hasServiceVehicles' => Vehicle::query()->where('status', 'service')->exists(),
             'drivers' => Driver::query()->orderBy('name')->get(),
             'approvers' => User::query()->where('role', 'approver')->orderBy('name')->get(),
         ]);
@@ -100,14 +105,25 @@ class BookingController extends Controller
             'approver_level_2' => ['required', 'integer', $approverRule],
         ]);
 
-        DB::transaction(function () use ($request, $validated): void {
+        $startDate = Carbon::parse($validated['start_date']);
+        $endDate = Carbon::parse($validated['end_date']);
+
+        DB::transaction(function () use ($request, $validated, $startDate, $endDate): void {
             $vehicle = Vehicle::query()->whereKey($validated['vehicle_id'])->lockForUpdate()->firstOrFail();
+
+            if ($vehicle->status === 'service') {
+                throw ValidationException::withMessages([
+                    'vehicle_id' => 'Kendaraan berstatus service tidak dapat dipesan.',
+                ]);
+            }
+
+            Driver::query()->whereKey($validated['driver_id'])->lockForUpdate()->firstOrFail();
 
             $hasConflict = Booking::query()
                 ->where('vehicle_id', $validated['vehicle_id'])
                 ->whereIn('status', ['pending', 'approved'])
-                ->where('start_date', '<=', $validated['end_date'])
-                ->where('end_date', '>=', $validated['start_date'])
+                ->where('start_date', '<', $endDate)
+                ->where('end_date', '>', $startDate)
                 ->exists();
 
             if ($hasConflict) {
@@ -116,13 +132,26 @@ class BookingController extends Controller
                 ]);
             }
 
+            $hasDriverConflict = Booking::query()
+                ->where('driver_id', $validated['driver_id'])
+                ->whereIn('status', ['pending', 'approved'])
+                ->where('start_date', '<', $endDate)
+                ->where('end_date', '>', $startDate)
+                ->exists();
+
+            if ($hasDriverConflict) {
+                throw ValidationException::withMessages([
+                    'driver_id' => 'Pengemudi sudah memiliki pemesanan pending atau approved pada rentang waktu tersebut.',
+                ]);
+            }
+
             $booking = Booking::create([
                 'vehicle_id' => $validated['vehicle_id'],
                 'driver_id' => $validated['driver_id'],
                 'created_by' => $request->user()->id,
                 'requester_name' => $validated['requester_name'],
-                'start_date' => $validated['start_date'],
-                'end_date' => $validated['end_date'],
+                'start_date' => $startDate,
+                'end_date' => $endDate,
                 'purpose' => $validated['purpose'],
                 'status' => 'pending',
             ]);

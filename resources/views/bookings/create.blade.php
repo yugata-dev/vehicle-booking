@@ -8,13 +8,20 @@
         <form action="{{ route('bookings.store') }}" method="POST" class="space-y-6 rounded-lg bg-white p-6 shadow">
             @csrf
 
+            @if ($hasServiceVehicles)
+                <aside role="note" class="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                    <p class="font-semibold">Kendaraan yang sedang diservis tidak ditampilkan.</p>
+                    <p class="mt-1">Kendaraan berstatus service belum bisa dipesan. Setelah servis selesai, ubah statusnya menjadi tersedia melalui menu Kendaraan.</p>
+                </aside>
+            @endif
+
             <div>
                 <label for="vehicle_id" class="block text-sm font-medium text-gray-700">Kendaraan</label>
                 <select id="vehicle_id" name="vehicle_id" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
                     <option value="">Pilih kendaraan</option>
                     @foreach ($vehicles as $vehicle)
                         <option value="{{ $vehicle->id }}" @selected(old('vehicle_id') == $vehicle->id)>
-                            {{ $vehicle->plate_number }} — {{ $vehicle->name }} ({{ $vehicle->status }})
+                            {{ $vehicle->plate_number }} — {{ $vehicle->name }} ({{ ucfirst($vehicle->status) }})
                         </option>
                     @endforeach
                 </select>
