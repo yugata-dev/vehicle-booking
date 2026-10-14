@@ -66,6 +66,8 @@ Seeder membuat akun berikut dengan kata sandi `password`. Login menggunakan **em
 
 ![Dashboard](docs/screenshots/dashboard.png)
 
+![Daftar Pemesanan](docs/screenshots/booking-dashboard.png)
+
 ![Form Pemesanan](docs/screenshots/booking-create.png)
 
 ![Halaman Persetujuan](docs/screenshots/approvals.png)
@@ -77,4 +79,3 @@ Seeder membuat akun berikut dengan kata sandi `password`. Login menggunakan **em
 ```bash
 php artisan test
 ```
-
