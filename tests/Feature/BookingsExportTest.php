@@ -32,7 +32,7 @@ class BookingsExportTest extends TestCase
 
             return $export->headings() === [
                 'ID',
-                'Plat Kendaraan',
+                'Plat Nomor',
                 'Nama Driver',
                 'Pemohon',
                 'Tanggal Mulai',

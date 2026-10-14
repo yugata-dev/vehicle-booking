@@ -100,6 +100,85 @@ class ApprovalControllerTest extends TestCase
         ]);
     }
 
+    public function test_level_two_cannot_approve_booking_after_level_one_rejects_it(): void
+    {
+        [$booking, $levelOne, $levelTwo, $levelOneApproval, $levelTwoApproval] = $this->createApprovalWorkflow();
+
+        $this->actingAs($levelOne)
+            ->post(route('approvals.reject', $levelOneApproval))
+            ->assertRedirect()
+            ->assertSessionHas('status', 'Pemesanan berhasil ditolak.');
+
+        $this->assertDatabaseHas('approvals', [
+            'id' => $levelOneApproval->id,
+            'status' => 'rejected',
+        ]);
+        $this->assertDatabaseHas('bookings', [
+            'id' => $booking->id,
+            'status' => 'rejected',
+        ]);
+
+        $this->actingAs($levelTwo)
+            ->post(route('approvals.approve', $levelTwoApproval))
+            ->assertRedirect()
+            ->assertSessionHas('error', 'Persetujuan ini sudah diproses.');
+
+        $this->assertDatabaseHas('approvals', [
+            'id' => $levelOneApproval->id,
+            'status' => 'rejected',
+        ]);
+        $this->assertDatabaseHas('approvals', [
+            'id' => $levelTwoApproval->id,
+            'status' => 'pending',
+        ]);
+        $this->assertDatabaseHas('bookings', [
+            'id' => $booking->id,
+            'status' => 'rejected',
+        ]);
+        $this->assertDatabaseCount('activity_logs', 1);
+        $this->assertDatabaseMissing('activity_logs', [
+            'user_id' => $levelTwo->id,
+            'action' => 'approve',
+            'entity' => 'booking',
+            'entity_id' => $booking->id,
+        ]);
+    }
+
+    public function test_level_two_rejection_updates_booking_and_logs_decision(): void
+    {
+        [$booking, $levelOne, $levelTwo, $levelOneApproval, $levelTwoApproval] = $this->createApprovalWorkflow();
+
+        $this->actingAs($levelOne)
+            ->post(route('approvals.approve', $levelOneApproval))
+            ->assertRedirect()
+            ->assertSessionHas('status', 'Pemesanan berhasil disetujui.');
+
+        $this->actingAs($levelTwo)
+            ->post(route('approvals.reject', $levelTwoApproval))
+            ->assertRedirect()
+            ->assertSessionHas('status', 'Pemesanan berhasil ditolak.');
+
+        $this->assertDatabaseHas('approvals', [
+            'id' => $levelOneApproval->id,
+            'status' => 'approved',
+        ]);
+        $this->assertDatabaseHas('approvals', [
+            'id' => $levelTwoApproval->id,
+            'status' => 'rejected',
+        ]);
+        $this->assertDatabaseHas('bookings', [
+            'id' => $booking->id,
+            'status' => 'rejected',
+        ]);
+        $this->assertDatabaseHas('activity_logs', [
+            'user_id' => $levelTwo->id,
+            'action' => 'reject',
+            'entity' => 'booking',
+            'entity_id' => $booking->id,
+            'description' => 'Pemesanan ditolak pada level 2.',
+        ]);
+    }
+
     private function createApprovalWorkflow(): array
     {
         $creator = User::factory()->create(['role' => 'employee']);

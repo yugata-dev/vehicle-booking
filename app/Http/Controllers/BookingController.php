@@ -32,11 +32,11 @@ class BookingController extends Controller
 
         $bookings = Booking::query()
             ->with(['vehicle', 'driver', 'creator'])
-            ->when($request->user()->role !== 'admin', fn (Builder $query) => $query->where('created_by', $request->user()->id))
-            ->when($filters['status'] ?? null, fn (Builder $query, string $status) => $query->where('status', $status))
-            ->when($filters['vehicle_id'] ?? null, fn (Builder $query, int $vehicleId) => $query->where('vehicle_id', $vehicleId))
-            ->when($filters['from'] ?? null, fn (Builder $query, string $from) => $query->whereDate('end_date', '>=', $from))
-            ->when($filters['to'] ?? null, fn (Builder $query, string $to) => $query->whereDate('start_date', '<=', $to))
+            ->when($request->user()->role !== 'admin', fn(Builder $query) => $query->where('created_by', $request->user()->id))
+            ->when($filters['status'] ?? null, fn(Builder $query, string $status) => $query->where('status', $status))
+            ->when($filters['vehicle_id'] ?? null, fn(Builder $query, int $vehicleId) => $query->where('vehicle_id', $vehicleId))
+            ->when($filters['from'] ?? null, fn(Builder $query, string $from) => $query->whereDate('end_date', '>=', $from))
+            ->when($filters['to'] ?? null, fn(Builder $query, string $to) => $query->whereDate('start_date', '<=', $to))
             ->latest()
             ->paginate(15)
             ->withQueryString();
@@ -98,11 +98,23 @@ class BookingController extends Controller
             'vehicle_id' => ['required', 'integer', 'exists:vehicles,id'],
             'driver_id' => ['required', 'integer', 'exists:drivers,id'],
             'requester_name' => ['required', 'string', 'max:255'],
-            'start_date' => ['required', 'date'],
-            'end_date' => ['required', 'date', 'after:start_date'],
+            'start_date' => ['bail', 'required', 'date_format:Y-m-d\\TH:i'],
+            'end_date' => ['bail', 'required', 'date_format:Y-m-d\\TH:i', 'after:start_date'],
             'purpose' => ['required', 'string', 'max:5000'],
-            'approver_level_1' => ['required', 'integer', $approverRule],
+            'approver_level_1' => [
+                'required',
+                'integer',
+                $approverRule,
+                'different:approver_level_2',
+            ],
             'approver_level_2' => ['required', 'integer', $approverRule],
+        ], [
+            'start_date.required' => 'Waktu mulai wajib diisi.',
+            'start_date.date_format' => 'Waktu mulai harus berupa tanggal dan waktu yang valid.',
+            'end_date.required' => 'Waktu selesai wajib diisi.',
+            'end_date.date_format' => 'Waktu selesai harus berupa tanggal dan waktu yang valid.',
+            'end_date.after' => 'Waktu selesai harus setelah waktu mulai.',
+            'approver_level_1.different' => 'Approver level 1 dan level 2 harus orang yang berbeda.',
         ]);
 
         $startDate = Carbon::parse($validated['start_date']);

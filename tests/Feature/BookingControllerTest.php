@@ -123,6 +123,131 @@ class BookingControllerTest extends TestCase
         $this->assertDatabaseCount('approvals', 2);
     }
 
+    public function test_equal_or_earlier_end_time_is_rejected(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $payload = $this->bookingPayload(
+            $this->createVehicle('tersedia'),
+            $this->createDriver(),
+            $this->createApprovers(),
+            '10:00',
+            '10:00',
+        );
+
+        $this->actingAs($admin)
+            ->post(route('bookings.store'), $payload)
+            ->assertSessionHasErrors('end_date');
+
+        $payload['start_date'] = '2026-10-15T11:00';
+        $payload['end_date'] = '2026-10-15T10:00';
+
+        $this->post(route('bookings.store'), $payload)
+            ->assertSessionHasErrors('end_date');
+
+        $this->assertDatabaseCount('bookings', 0);
+        $this->assertDatabaseCount('approvals', 0);
+    }
+
+    public function test_invalid_datetime_values_receive_field_specific_errors(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $payload = $this->bookingPayload(
+            $this->createVehicle('tersedia'),
+            $this->createDriver(),
+            $this->createApprovers(),
+        );
+
+        $missingDates = $payload;
+        unset($missingDates['start_date'], $missingDates['end_date']);
+
+        $this->actingAs($admin)
+            ->post(route('bookings.store'), $missingDates)
+            ->assertSessionHasErrors(['start_date', 'end_date']);
+
+        $payload['start_date'] = '2026-10-15 09:00:00';
+
+        $this->post(route('bookings.store'), $payload)
+            ->assertSessionHasErrors('start_date');
+
+        $payload['start_date'] = 'not-a-date';
+
+        $this->actingAs($admin)
+            ->post(route('bookings.store'), $payload)
+            ->assertSessionHasErrors('start_date');
+
+        $payload['start_date'] = '2026-10-15T09:00';
+        $payload['end_date'] = 'not-a-date';
+
+        $this->post(route('bookings.store'), $payload)
+            ->assertSessionHasErrors('end_date');
+
+        $this->assertDatabaseCount('bookings', 0);
+    }
+
+    public function test_booking_range_can_cross_midnight(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $payload = $this->bookingPayload(
+            $this->createVehicle('tersedia'),
+            $this->createDriver(),
+            $this->createApprovers(),
+            '23:30',
+            '00:30',
+        );
+        $payload['end_date'] = '2026-10-16T00:30';
+
+        $this->actingAs($admin)
+            ->post(route('bookings.store'), $payload)
+            ->assertRedirect(route('bookings.index'));
+
+        $this->assertDatabaseCount('bookings', 1);
+    }
+
+    public function test_datetime_local_booking_values_are_stored_in_jakarta_time(): void
+    {
+        $this->assertSame('Asia/Jakarta', config('app.timezone'));
+
+        $admin = User::factory()->create(['role' => 'admin']);
+        $payload = $this->bookingPayload(
+            $this->createVehicle('tersedia'),
+            $this->createDriver(),
+            $this->createApprovers(),
+            '09:00',
+            '10:00',
+        );
+
+        $this->actingAs($admin)
+            ->post(route('bookings.store'), $payload)
+            ->assertRedirect(route('bookings.index'));
+
+        $booking = Booking::query()->firstOrFail();
+
+        $this->assertSame('Asia/Jakarta', $booking->start_date->timezoneName);
+        $this->assertDatabaseHas('bookings', [
+            'id' => $booking->id,
+            'start_date' => '2026-10-15 09:00:00',
+            'end_date' => '2026-10-15 10:00:00',
+        ]);
+    }
+
+    public function test_booking_in_the_past_remains_allowed_by_current_policy(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $payload = $this->bookingPayload(
+            $this->createVehicle('tersedia'),
+            $this->createDriver(),
+            $this->createApprovers(),
+        );
+        $payload['start_date'] = '2020-01-01T09:00';
+        $payload['end_date'] = '2020-01-01T10:00';
+
+        $this->actingAs($admin)
+            ->post(route('bookings.store'), $payload)
+            ->assertRedirect(route('bookings.index'));
+
+        $this->assertDatabaseCount('bookings', 1);
+    }
+
     private int $sequence = 0;
 
     private function createVehicle(string $status): Vehicle

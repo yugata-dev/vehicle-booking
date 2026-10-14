@@ -17,10 +17,11 @@ class ApprovalController extends Controller
             ->with(['booking.vehicle', 'booking.driver', 'booking.creator'])
             ->where('approver_id', $request->user()->id)
             ->where('status', 'pending')
-            ->whereHas('booking', fn ($query) => $query->where('status', 'pending'))
+            ->whereHas('booking', fn($query) => $query
+                ->where('status', 'pending'))
             ->where(function ($query) {
                 $query->where('level', 1)
-                    ->orWhereHas('booking.approvals', fn ($levelOne) => $levelOne
+                    ->orWhereHas('booking.approvals', fn($levelOne) => $levelOne
                         ->where('level', 1)
                         ->where('status', 'approved'));
             })
@@ -32,24 +33,43 @@ class ApprovalController extends Controller
         ]);
     }
 
-    public function approve(Request $request, Approval $approval): RedirectResponse
-    {
-        abort_unless((int) $approval->approver_id === (int) $request->user()->id, 403);
+    public function approve(
+        Request $request,
+        Approval $approval
+    ): RedirectResponse {
+        abort_unless(
+            (int) $approval->approver_id === (int) $request->user()->id,
+            403
+        );
 
         $result = DB::transaction(function () use ($request, $approval): string {
-            $approval = Approval::query()->lockForUpdate()->findOrFail($approval->id);
-            abort_unless((int) $approval->approver_id === (int) $request->user()->id, 403);
+            $approval = Approval::query()
+                ->lockForUpdate()
+                ->findOrFail($approval->id);
 
-            $booking = $approval->booking()->lockForUpdate()->firstOrFail();
+            abort_unless(
+                (int) $approval->approver_id === (int) $request->user()->id,
+                403
+            );
 
-            if ($approval->status !== 'pending' || $booking->status !== 'pending') {
+            $booking = $approval->booking()
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            if (
+                $approval->status !== 'pending'
+                || $booking->status !== 'pending'
+            ) {
                 return 'already-decided';
             }
 
-            if ((int) $approval->level === 2 && ! $booking->approvals()
-                ->where('level', 1)
-                ->where('status', 'approved')
-                ->exists()) {
+            if (
+                (int) $approval->level === 2
+                && ! $booking->approvals()
+                    ->where('level', 1)
+                    ->where('status', 'approved')
+                    ->exists()
+            ) {
                 return 'level-one-required';
             }
 
@@ -59,7 +79,9 @@ class ApprovalController extends Controller
             ]);
 
             if ((int) $approval->level === 2) {
-                $booking->update(['status' => 'approved']);
+                $booking->update([
+                    'status' => 'approved',
+                ]);
             }
 
             ActivityLog::create([
@@ -74,34 +96,62 @@ class ApprovalController extends Controller
         });
 
         if ($result === 'level-one-required') {
-            return back()->with('error', 'Persetujuan level 1 harus diselesaikan terlebih dahulu.');
+            return back()->with(
+                'error',
+                'Persetujuan level 1 harus diselesaikan terlebih dahulu.'
+            );
         }
 
         if ($result === 'already-decided') {
-            return back()->with('error', 'Persetujuan ini sudah diproses.');
+            return back()->with(
+                'error',
+                'Persetujuan ini sudah diproses.'
+            );
         }
 
-        return back()->with('status', 'Pemesanan berhasil disetujui.');
+        return back()->with(
+            'status',
+            'Pemesanan berhasil disetujui.'
+        );
     }
 
-    public function reject(Request $request, Approval $approval): RedirectResponse
-    {
-        abort_unless((int) $approval->approver_id === (int) $request->user()->id, 403);
+    public function reject(
+        Request $request,
+        Approval $approval
+    ): RedirectResponse {
+        abort_unless(
+            (int) $approval->approver_id === (int) $request->user()->id,
+            403
+        );
 
         $result = DB::transaction(function () use ($request, $approval): string {
-            $approval = Approval::query()->lockForUpdate()->findOrFail($approval->id);
-            abort_unless((int) $approval->approver_id === (int) $request->user()->id, 403);
+            $approval = Approval::query()
+                ->lockForUpdate()
+                ->findOrFail($approval->id);
 
-            $booking = $approval->booking()->lockForUpdate()->firstOrFail();
+            abort_unless(
+                (int) $approval->approver_id === (int) $request->user()->id,
+                403
+            );
 
-            if ($approval->status !== 'pending' || $booking->status !== 'pending') {
+            $booking = $approval->booking()
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            if (
+                $approval->status !== 'pending'
+                || $booking->status !== 'pending'
+            ) {
                 return 'already-decided';
             }
 
-            if ((int) $approval->level === 2 && ! $booking->approvals()
-                ->where('level', 1)
-                ->where('status', 'approved')
-                ->exists()) {
+            if (
+                (int) $approval->level === 2
+                && ! $booking->approvals()
+                    ->where('level', 1)
+                    ->where('status', 'approved')
+                    ->exists()
+            ) {
                 return 'level-one-required';
             }
 
@@ -109,7 +159,10 @@ class ApprovalController extends Controller
                 'status' => 'rejected',
                 'decided_at' => now(),
             ]);
-            $booking->update(['status' => 'rejected']);
+
+            $booking->update([
+                'status' => 'rejected',
+            ]);
 
             ActivityLog::create([
                 'user_id' => $request->user()->id,
@@ -123,13 +176,22 @@ class ApprovalController extends Controller
         });
 
         if ($result === 'level-one-required') {
-            return back()->with('error', 'Persetujuan level 1 harus diselesaikan terlebih dahulu.');
+            return back()->with(
+                'error',
+                'Persetujuan level 1 harus diselesaikan terlebih dahulu.'
+            );
         }
 
         if ($result === 'already-decided') {
-            return back()->with('error', 'Persetujuan ini sudah diproses.');
+            return back()->with(
+                'error',
+                'Persetujuan ini sudah diproses.'
+            );
         }
 
-        return back()->with('status', 'Pemesanan berhasil ditolak.');
+        return back()->with(
+            'status',
+            'Pemesanan berhasil ditolak.'
+        );
     }
 }
