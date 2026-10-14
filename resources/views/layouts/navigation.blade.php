@@ -5,16 +5,50 @@
             <div class="flex">
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
-                    <a href="{{ route('dashboard') }}">
-                        <x-application-logo class="block h-9 w-auto fill-current text-gray-800" />
-                    </a>
+                    @auth
+                        @if(auth()->user()->role === 'admin')
+                            <a href="{{ route('dashboard') }}">
+                                <x-application-logo class="block h-9 w-auto fill-current text-gray-800" />
+                            </a>
+                        @else
+                            <a href="{{ route('approvals.index') }}">
+                                <x-application-logo class="block h-9 w-auto fill-current text-gray-800" />
+                            </a>
+                        @endif
+                    @else
+                        <a href="{{ route('login') }}">
+                            <x-application-logo class="block h-9 w-auto fill-current text-gray-800" />
+                        </a>
+                    @endauth
                 </div>
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                        {{ __('Dashboard') }}
-                    </x-nav-link>
+                    @auth
+                        @if(auth()->user()->role === 'admin')
+                            <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+                                {{ __('Dashboard') }}
+                            </x-nav-link>
+                            <x-nav-link :href="route('vehicles.index')" :active="request()->routeIs('vehicles.*')">
+                                {{ __('Kendaraan') }}
+                            </x-nav-link>
+                            <x-nav-link :href="route('drivers.index')" :active="request()->routeIs('drivers.*')">
+                                {{ __('Driver') }}
+                            </x-nav-link>
+                            <x-nav-link :href="route('bookings.index')" :active="request()->routeIs('bookings.index')">
+                                {{ __('Pemesanan') }}
+                            </x-nav-link>
+                            <x-nav-link :href="route('bookings.create')" :active="request()->routeIs('bookings.create')">
+                                {{ __('Ajukan Pemesanan') }}
+                            </x-nav-link>
+                        @endif
+
+                        @if(auth()->user()->role === 'approver')
+                            <x-nav-link :href="route('approvals.index')" :active="request()->routeIs('approvals.*')">
+                                {{ __('Persetujuan') }}
+                            </x-nav-link>
+                        @endif
+                    @endauth
                 </div>
             </div>
 
@@ -67,9 +101,31 @@
     <!-- Responsive Navigation Menu -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
-            <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                {{ __('Dashboard') }}
-            </x-responsive-nav-link>
+            @auth
+                @if(auth()->user()->role === 'admin')
+                    <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+                        {{ __('Dashboard') }}
+                    </x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('vehicles.index')" :active="request()->routeIs('vehicles.*')">
+                        {{ __('Kendaraan') }}
+                    </x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('drivers.index')" :active="request()->routeIs('drivers.*')">
+                        {{ __('Driver') }}
+                    </x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('bookings.index')" :active="request()->routeIs('bookings.index')">
+                        {{ __('Pemesanan') }}
+                    </x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('bookings.create')" :active="request()->routeIs('bookings.create')">
+                        {{ __('Ajukan Pemesanan') }}
+                    </x-responsive-nav-link>
+                @endif
+
+                @if(auth()->user()->role === 'approver')
+                    <x-responsive-nav-link :href="route('approvals.index')" :active="request()->routeIs('approvals.*')">
+                        {{ __('Persetujuan') }}
+                    </x-responsive-nav-link>
+                @endif
+            @endauth
         </div>
 
         <!-- Responsive Settings Options -->

@@ -17,13 +17,16 @@
                         <h1 class="text-xl font-bold text-gray-800">Vehicle Booking</h1>
                     </div>
                     <div class="flex items-center space-x-4">
-                        @if(Route::has('bookings.index'))
-                            <a href="{{ route('bookings.index') }}" class="text-gray-600 hover:text-gray-900">Pemesanan</a>
-                        @endif
-                        @if(Route::has('bookings.create'))
-                            <a href="{{ route('bookings.create') }}" class="text-gray-600 hover:text-gray-900">Ajukan Pemesanan</a>
-                        @endif
                         @if(auth()->user()->role === 'admin')
+                            @if(Route::has('dashboard'))
+                                <a href="{{ route('dashboard') }}" class="text-gray-600 hover:text-gray-900">Dashboard</a>
+                            @endif
+                            @if(Route::has('bookings.index'))
+                                <a href="{{ route('bookings.index') }}" class="text-gray-600 hover:text-gray-900">Pemesanan</a>
+                            @endif
+                            @if(Route::has('bookings.create'))
+                                <a href="{{ route('bookings.create') }}" class="text-gray-600 hover:text-gray-900">Ajukan Pemesanan</a>
+                            @endif
                             @if(Route::has('vehicles.index'))
                                 <a href="{{ route('vehicles.index') }}" class="text-gray-600 hover:text-gray-900">Kendaraan</a>
                             @endif
