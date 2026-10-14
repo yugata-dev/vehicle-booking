@@ -8,27 +8,27 @@ Versi di bawah diambil dari lingkungan proyek dan berkas dependensinya.
 
 - PHP 8.3.6 (CLI); `composer.json` mensyaratkan PHP `^8.3`.
 - Laravel 13.36.0 (`composer.lock`).
-- SQLite 3.45.1. Ini versi library SQLite sistem; verifikasi melalui PDO PHP tidak tersedia di lingkungan saat dokumentasi dibuat karena ekstensi `pdo_sqlite` belum aktif.
+- PostgreSQL 14+.
 - Tailwind CSS 3.4.19 (`package-lock.json`).
 - Chart.js 4.4.0 melalui CDN.
 - Maatwebsite Excel 4.0.4.
 
 ## Instalasi
 
-Pastikan PHP, Composer, Node.js, dan npm sudah tersedia. Langkah berikut menggunakan SQLite sesuai konfigurasi `.env.example`.
+Pastikan PHP, Composer, Node.js, npm, dan PostgreSQL 14+ sudah tersedia. Buat database `vehicle_booking` sebelum menjalankan migrasi.
 
 ```bash
 composer install
 cp .env.example .env
 php artisan key:generate
-touch database/database.sqlite
+createdb -U postgres vehicle_booking
 php artisan migrate --seed
 npm install
 npm run build
 php artisan serve
 ```
 
-> Buka alamat yang ditampilkan oleh `php artisan serve`. Bila menggunakan database selain SQLite, sesuaikan `.env` dan siapkan database sebelum menjalankan migrasi.
+> Buka alamat yang ditampilkan oleh `php artisan serve`.
 
 ## Akun demo
 
@@ -62,12 +62,19 @@ Seeder membuat akun berikut dengan kata sandi `password`. Login menggunakan **em
 
 ![Diagram Aktivitas](docs/Diagram_Aktivitas.png)
 
+## Screenshot
+
+![Dashboard](docs/screenshots/dashboard.png)
+
+![Form Pemesanan](docs/screenshots/booking-create.png)
+
+![Halaman Persetujuan](docs/screenshots/approvals.png)
+
+![Export Excel](docs/screenshots/export.png)
+
 ## Menjalankan tes
 
 ```bash
 php artisan test
 ```
 
-## Catatan alat AI
-
-Pengembangan dibantu OpenAI Codex. Kode aplikasi telah ditinjau.
