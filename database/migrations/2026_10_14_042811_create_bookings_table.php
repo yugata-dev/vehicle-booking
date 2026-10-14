@@ -13,7 +13,17 @@ return new class extends Migration
     {
         Schema::create('bookings', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('vehicle_id')->constrained()->restrictOnDelete();
+            $table->foreignId('driver_id')->constrained()->restrictOnDelete();
+            $table->foreignId('created_by')->constrained('users')->restrictOnDelete();
+            $table->string('requester_name');
+            $table->dateTime('start_date');
+            $table->dateTime('end_date');
+            $table->text('purpose');
+            $table->string('status')->default('pending');
             $table->timestamps();
+
+            $table->index(['vehicle_id', 'status', 'start_date', 'end_date']);
         });
     }
 

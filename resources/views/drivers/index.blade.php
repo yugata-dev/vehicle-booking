@@ -11,7 +11,7 @@
             <div class="rounded-md bg-green-50 p-4 text-green-800">{{ session('status') }}</div>
         @endif
 
-        <div class="overflow-hidden rounded-lg bg-white shadow-sm">
+        <div class="overflow-hidden rounded-lg bg-white p-6 shadow">
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">

@@ -5,7 +5,7 @@
             <h1 class="mt-2 text-2xl font-semibold text-gray-900">Tambah Pengemudi</h1>
         </div>
 
-        <form action="{{ route('drivers.store') }}" method="POST" class="space-y-6 rounded-lg bg-white p-6 shadow-sm">
+        <form action="{{ route('drivers.store') }}" method="POST" class="space-y-6 rounded-lg bg-white p-6 shadow">
             @csrf
             @include('drivers._form', ['driver' => null])
         </form>

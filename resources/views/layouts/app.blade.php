@@ -17,6 +17,12 @@
                         <h1 class="text-xl font-bold text-gray-800">Vehicle Booking</h1>
                     </div>
                     <div class="flex items-center space-x-4">
+                        @if(Route::has('bookings.index'))
+                            <a href="{{ route('bookings.index') }}" class="text-gray-600 hover:text-gray-900">Pemesanan</a>
+                        @endif
+                        @if(Route::has('bookings.create'))
+                            <a href="{{ route('bookings.create') }}" class="text-gray-600 hover:text-gray-900">Ajukan Pemesanan</a>
+                        @endif
                         @if(auth()->user()->role === 'admin')
                             @if(Route::has('vehicles.index'))
                                 <a href="{{ route('vehicles.index') }}" class="text-gray-600 hover:text-gray-900">Kendaraan</a>
@@ -24,10 +30,8 @@
                             @if(Route::has('drivers.index'))
                                 <a href="{{ route('drivers.index') }}" class="text-gray-600 hover:text-gray-900">Driver</a>
                             @endif
-                            @if(Route::has('bookings.index'))
-                                <a href="{{ route('bookings.index') }}" class="text-gray-600 hover:text-gray-900">Pemesanan</a>
-                            @endif
-                        @elseif(Route::has('approvals.index'))
+                        @endif
+                        @if(Route::has('approvals.index') && auth()->user()->role === 'approver')
                             <a href="{{ route('approvals.index') }}" class="text-gray-600 hover:text-gray-900">Persetujuan</a>
                         @endif
                         <form method="POST" action="{{ route('logout') }}">

@@ -22,7 +22,7 @@
 
 <div>
     <label for="ownership" class="block text-sm font-medium text-gray-700">Kepemilikan</label>
-    <select id="ownership" name="ownership" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+    <select id="ownership" name="ownership" required onchange="document.getElementById('rental-company-field').hidden = this.value !== 'sewa'" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
         <option value="">Pilih kepemilikan</option>
         <option value="milik" @selected(old('ownership', $vehicle?->ownership) === 'milik')>Milik</option>
         <option value="sewa" @selected(old('ownership', $vehicle?->ownership) === 'sewa')>Sewa</option>
@@ -30,7 +30,7 @@
     <x-input-error :messages="$errors->get('ownership')" class="mt-2" />
 </div>
 
-<div>
+<div id="rental-company-field" @if(old('ownership', $vehicle?->ownership) !== 'sewa') hidden @endif>
     <label for="rental_company" class="block text-sm font-medium text-gray-700">Perusahaan rental (opsional)</label>
     <input id="rental_company" name="rental_company" value="{{ old('rental_company', $vehicle?->rental_company) }}" maxlength="255" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
     <x-input-error :messages="$errors->get('rental_company')" class="mt-2" />

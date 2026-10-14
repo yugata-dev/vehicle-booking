@@ -11,7 +11,7 @@
             <div class="rounded-md bg-green-50 p-4 text-green-800">{{ session('status') }}</div>
         @endif
 
-        <div class="overflow-hidden rounded-lg bg-white shadow-sm">
+        <div class="overflow-hidden rounded-lg bg-white p-6 shadow">
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
@@ -20,6 +20,7 @@
                             <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-500">Nama</th>
                             <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-500">Tipe</th>
                             <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-500">Kepemilikan</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-500">Status</th>
                             <th class="px-6 py-3 text-right text-xs font-semibold uppercase text-gray-500">Aksi</th>
                         </tr>
                     </thead>
@@ -30,6 +31,7 @@
                                 <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-900">{{ $vehicle->name }}</td>
                                 <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-600">{{ $vehicle->type }}</td>
                                 <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-600">{{ $vehicle->ownership }}</td>
+                                <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-600">{{ $vehicle->status }}</td>
                                 <td class="whitespace-nowrap px-6 py-4 text-right text-sm">
                                     <div class="flex justify-end gap-4">
                                         <a href="{{ route('vehicles.edit', $vehicle) }}" class="font-medium text-indigo-600 hover:text-indigo-800">Edit</a>
@@ -43,7 +45,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="px-6 py-8 text-center text-sm text-gray-500">Belum ada kendaraan.</td>
+                                <td colspan="6" class="px-6 py-8 text-center text-sm text-gray-500">Belum ada kendaraan.</td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -51,11 +53,6 @@
             </div>
             <div class="border-t border-gray-200 px-6 py-4">
                 {{ $vehicles->links() }}
-            </div>
-        </div>
-    </div>
-</x-app-layout>
-                </div>
             </div>
         </div>
     </div>
