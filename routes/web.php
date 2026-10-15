@@ -8,6 +8,19 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\VehicleController;
 use Illuminate\Support\Facades\Route;
 
+Route::get('/debug-db', function () {
+    $c = config('database.connections.pgsql');
+
+    return [
+        'endpoint_env_set' => (bool) env('DB_ENDPOINT_ID'),
+        'password_prefixed' => str_starts_with((string) $c['password'], 'endpoint='),
+        'has_options_key' => array_key_exists('options', $c),
+        'db_url_set' => (bool) env('DB_URL'),
+        'host' => $c['host'],
+        'sslmode' => $c['sslmode'] ?? null,
+    ];
+});
+
 Route::get('/', function () {
     return view('welcome');
 });
