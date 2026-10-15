@@ -20,7 +20,7 @@
     "APP_ENV": "production",
     "APP_DEBUG": "false",
     "APP_KEY": "base64:sr+nJ0A5xAXjiuLkyP/il36DLRI3URsK4Rt0JbHi5Gg=",
-    "APP_URL": "https://vehicle-booking-psi.vercel.app/",
+    "APP_URL": "https://vehicle-booking-five.vercel.app",
     "DB_SSLMODE": "require",
     "DB_ENDPOINT_ID": "ep-shy-shadow-aobazk7k",
     "APP_CONFIG_CACHE": "/tmp/config.php",
