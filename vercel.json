@@ -18,8 +18,9 @@
   "outputDirectory": "public",
   "env": {
     "APP_ENV": "production",
-    "APP_DEBUG": "false",
-    "APP_URL": "https://vercel.app",
+    "APP_DEBUG": "true",
+    "APP_KEY": "base64:sr+nJ0A5xAXjiuLkyP/il36DLRI3URsK4Rt0JbHi5Gg=",
+    "APP_URL": "https://vehicle-booking-indol.vercel.app",
     "APP_CONFIG_CACHE": "/tmp/config.php",
     "APP_EVENTS_CACHE": "/tmp/events.php",
     "APP_PACKAGES_CACHE": "/tmp/packages.php",
