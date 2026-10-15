@@ -8,6 +8,7 @@
     "require": {
         "php": "^8.3",
         "ext-gd": "*",
+        "ext-zip": "*",
         "blade-ui-kit/blade-heroicons": "^2.7",
         "laravel/framework": "^13.17",
         "laravel/tinker": "^3.0",
