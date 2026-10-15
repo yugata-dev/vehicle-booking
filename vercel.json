@@ -18,9 +18,11 @@
   "outputDirectory": "public",
   "env": {
     "APP_ENV": "production",
-    "APP_DEBUG": "true",
+    "APP_DEBUG": "false",
     "APP_KEY": "base64:sr+nJ0A5xAXjiuLkyP/il36DLRI3URsK4Rt0JbHi5Gg=",
-    "APP_URL": "https://vehicle-booking-indol.vercel.app",
+    "APP_URL": "https://vehicle-booking-psi.vercel.app/",
+    "DB_SSLMODE": "require",
+    "DB_ENDPOINT_ID": "ep-shy-shadow-aobazk7k",
     "APP_CONFIG_CACHE": "/tmp/config.php",
     "APP_EVENTS_CACHE": "/tmp/events.php",
     "APP_PACKAGES_CACHE": "/tmp/packages.php",
