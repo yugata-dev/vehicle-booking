@@ -68,6 +68,10 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script>
         const ctx = document.getElementById('bookingChart').getContext('2d');
+        const chartOrang = @json($chartOrang);
+        const chartBarang = @json($chartBarang);
+        const chartMax = Math.max(0, ...chartOrang, ...chartBarang);
+
         new Chart(ctx, {
             type: 'line',
             data: {
@@ -75,22 +79,22 @@
                 datasets: [
                     {
                         label: 'Angkutan Orang',
-                        data: @json($chartOrang),
+                        data: chartOrang,
                         borderColor: '#3B82F6',
                         backgroundColor: 'rgba(59, 130, 246, 0.05)',
                         borderWidth: 2,
-                        tension: 0.4,
-                        pointRadius: 0,
+                        tension: 0,
+                        pointRadius: 3,
                         pointHoverRadius: 5,
                     },
                     {
                         label: 'Angkutan Barang',
-                        data: @json($chartBarang),
+                        data: chartBarang,
                         borderColor: '#EF4444',
                         backgroundColor: 'rgba(239, 68, 68, 0.05)',
                         borderWidth: 2,
-                        tension: 0.4,
-                        pointRadius: 0,
+                        tension: 0,
+                        pointRadius: 3,
                         pointHoverRadius: 5,
                     }
                 ]
@@ -112,12 +116,13 @@
                 scales: {
                     y: {
                         beginAtZero: true,
+                        max: Math.max(1, chartMax + 1),
                         grid: {
                             color: 'rgba(0, 0, 0, 0.05)',
                             borderDash: [3, 3],
                             drawBorder: false,
                         },
-                        ticks: { stepSize: 1, color: '#9CA3AF' }
+                        ticks: { stepSize: 1, precision: 0, color: '#9CA3AF' }
                     },
                     x: {
                         grid: { display: false },
