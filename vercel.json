@@ -19,7 +19,7 @@
   "outputDirectory": "public",
   "env": {
     "APP_ENV": "production",
-    "APP_DEBUG": "true",
+    "APP_DEBUG": "false",
     "APP_URL": "https://vehicle-booking-five.vercel.app",
     "DB_SSLMODE": "require",
     "APP_CONFIG_CACHE": "/tmp/config.php",
