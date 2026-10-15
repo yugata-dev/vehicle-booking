@@ -1,8 +1,8 @@
 <?php
 
-// Vercel Functions have a read-only application filesystem; keep Laravel's
-// runtime storage in the writable temporary directory.
-$storagePath = sys_get_temp_dir().'/vehicle-booking';
+// Vercel Functions have a read-only application filesystem. Keep Laravel's
+// writable runtime data in /tmp instead.
+$storagePath = '/tmp/vehicle-booking';
 
 foreach ([
     'app/private',
