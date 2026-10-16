@@ -51,8 +51,8 @@ class BookingController extends Controller
     public function export(Request $request): BinaryFileResponse
     {
         $validated = $request->validate([
-            'start_date' => ['nullable', 'date'],
-            'end_date' => ['nullable', 'date', Rule::when($request->filled('start_date'), ['after_or_equal:start_date'])],
+            'start_date' => ['nullable', 'date_format:Y-m-d', 'after_or_equal:1900-01-01', 'before_or_equal:2100-12-31'],
+            'end_date' => ['nullable', 'date_format:Y-m-d', 'after_or_equal:1900-01-01', 'before_or_equal:2100-12-31', Rule::when($request->filled('start_date'), ['after_or_equal:start_date'])],
         ]);
 
         ActivityLog::create([

@@ -34,7 +34,7 @@ class BookingsExport implements FromQuery, WithHeadings, WithMapping, WithColumn
         return Booking::query()
             ->with(['vehicle', 'driver'])
             ->when($this->user->role !== 'admin', fn (Builder $query) => $query->where('created_by', $this->user->id))
-            ->when($this->startDate, fn (Builder $query, string $startDate) => $query->whereDate('end_date', '>=', $startDate))
+            ->when($this->startDate, fn (Builder $query, string $startDate) => $query->whereDate('start_date', '>=', $startDate))
             ->when($this->endDate, fn (Builder $query, string $endDate) => $query->whereDate('start_date', '<=', $endDate))
             ->orderBy('id');
     }
@@ -61,11 +61,11 @@ class BookingsExport implements FromQuery, WithHeadings, WithMapping, WithColumn
     {
         return [
             $booking->id,
-            $booking->vehicle->plate_number,
-            $booking->driver->name,
+            $booking->vehicle?->plate_number ?? '',
+            $booking->driver?->name ?? '',
             $booking->requester_name,
-            Carbon::parse($booking->start_date)->locale('id')->translatedFormat('d M Y'),
-            Carbon::parse($booking->end_date)->locale('id')->translatedFormat('d M Y'),
+            $booking->start_date ? Carbon::parse($booking->start_date)->locale('id')->translatedFormat('d M Y H:i') : '',
+            $booking->end_date ? Carbon::parse($booking->end_date)->locale('id')->translatedFormat('d M Y H:i') : '',
             $booking->purpose,
             $booking->status,
         ];
